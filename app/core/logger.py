@@ -5,8 +5,15 @@ LOG_FORMAT = "%(asctime)s - %(levelname)s - [%(name)s] - %(message)s"
 
 
 def get_logger(module_name: str) -> logging.Logger:
-    """
-    Instantiates and configures a standardized logger instance.
+    """Instantiates and configures a standardized logger instance.
+
+    Args:
+        module_name: The name of the module or file calling this logger,
+            typically passed as __name__.
+
+    Returns:
+        A pre-configured Logger instance mapped to the given module name with
+        a standard stream handler and formatting blueprint attached.
     """
     logger = logging.getLogger(module_name)
     

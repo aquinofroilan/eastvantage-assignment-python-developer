@@ -19,10 +19,19 @@ class AddressService:
     
     @staticmethod
     async def create_address(db: AsyncSession, address_in: AddressCreate) -> Address:
-        """
-        Creates a new address record.
+        """Creates a new address record.
 
-        Raises ValueError if SQLAlchemy model validators fail.
+        Args:
+            db: The asynchronous database session dependency.
+            address_in: The validated Pydantic schema containing the new address
+                details.
+
+        Returns:
+            The newly created and committed Address database model instance.
+
+        Raises:
+            ValueError: If the database model field validation rules or physical
+                geographic coordinate constraints fail.
         """
         try:
             # .model_dump() converts Pydantic schema data directly into a dict
@@ -44,7 +53,16 @@ class AddressService:
     
     @staticmethod
     async def get_address_by_id(db: AsyncSession, address_id: int) -> Address | None:
-        """Retrieves a single address by its primary key ID."""
+        """Retrieves a single address by its primary key ID.
+
+        Args:
+            db: The asynchronous database session dependency.
+            address_id: The unique primary key integer of the address to retrieve.
+
+        Returns:
+            The matched Address database model instance, or None if no record
+            associated with the given ID exists.
+        """
         result = await db.execute(select(Address).where(Address.id == address_id))
         return result.scalars().first()
     
@@ -52,7 +70,18 @@ class AddressService:
     async def get_addresses(
         db: AsyncSession, skip: int = 0, limit: int = 100
     ) -> Sequence[Address]:
-        """Retrieves a paginated list of address entries."""
+        """Retrieves a paginated list of address entries.
+    
+       Args:
+           db: The asynchronous database session dependency.
+           skip: The number of initial address records to skip for pagination.
+               Defaults to 0.
+           limit: The maximum number of address records to return in the
+               response batch. Defaults to 100.
+
+       Returns:
+           A sequence containing the fetched Address database model instances.
+       """
         result = await db.execute(select(Address).offset(skip).limit(limit))
         return result.scalars().all()
     
@@ -60,10 +89,20 @@ class AddressService:
     async def update_address(
         db: AsyncSession, db_address: Address, address_in: AddressUpdate
     ) -> Address:
-        """
-            Updates an existing address using partial data.
-    
-            Raises ValueError if updated data violates field validators.
+        """Updates an existing address using partial data.
+
+        Args:
+            db: The asynchronous database session dependency.
+            db_address: The current Address model instance retrieved from the
+                database.
+            address_in: The Pydantic schema containing the fields to update.
+
+        Returns:
+            The updated and committed Address database model instance.
+
+        Raises:
+            ValueError: If any updated field values violate the model's geometric
+                or text constraint validations.
         """
         # Convert schema input into a dict, ignoring explicitly unset values
         update_data = address_in.model_dump(exclude_unset=True)
@@ -83,6 +122,11 @@ class AddressService:
     
     @staticmethod
     async def delete_address(db: AsyncSession, db_address: Address) -> None:
-        """Removes an address record from the database."""
+        """Removes an address record from the database.
+
+        Args:
+            db: The asynchronous database session dependency.
+            db_address: The Address database model instance to be removed.
+        """
         await db.delete(db_address)
         await db.commit()
