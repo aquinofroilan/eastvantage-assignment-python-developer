@@ -44,7 +44,7 @@ class AddressService:
         except ValueError as err:
             await db.rollback()
             # Re-raise to let the FastAPI route handler turn it into an HTTP 400
-            logger.error("Validation failed during address creation: %s", err, exc_info=True)
+            logger.exception("Validation failed during address creation: %s", err, exc_info=True)
             raise ValueError(f"Validation failed: {err}") from err
         except IntegrityError as err:
             await db.rollback()
@@ -117,7 +117,7 @@ class AddressService:
             return db_address
         except ValueError as err:
             await db.rollback()
-            logger.error("Validation failed during address updating: %s", err, exc_info=True)
+            logger.exception("Validation failed during address updating: %s", err, exc_info=True)
             raise ValueError(f"Update validation failed: {err}") from err
     
     @staticmethod
